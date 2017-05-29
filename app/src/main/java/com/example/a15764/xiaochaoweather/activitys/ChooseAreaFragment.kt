@@ -1,4 +1,4 @@
-package com.example.a15764.xiaochaoweather
+package com.example.a15764.xiaochaoweather.activitys
 
 import android.app.ProgressDialog
 import android.os.Bundle
@@ -11,6 +11,7 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.ListView
 import android.widget.TextView
+import com.example.a15764.xiaochaoweather.R
 import com.example.a15764.xiaochaoweather.db.City
 import com.example.a15764.xiaochaoweather.db.County
 import com.example.a15764.xiaochaoweather.db.Province
@@ -22,10 +23,9 @@ import kotlinx.android.synthetic.main.fragment_choose_area.*
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Response
-import org.jetbrains.anko.AnkoLogger
-import org.jetbrains.anko.debug
 import org.jetbrains.anko.find
 import org.jetbrains.anko.support.v4.onUiThread
+import org.jetbrains.anko.support.v4.startActivity
 import org.jetbrains.anko.support.v4.toast
 import org.litepal.crud.DataSupport
 import java.io.IOException
@@ -71,13 +71,19 @@ class ChooseAreaFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         listView?.setOnItemClickListener { parent, view, position, id ->
-            if (currentLevel == LEVEL_PROVINCE) {
-                selectedProvince = provinceList!!.get(position)
-                queryCities()
-            }
-            else if (currentLevel == LEVEL_CITY){
-                selectedCity = cityList!!.get(position)
-                queryCounties()
+            when(currentLevel) {
+                LEVEL_PROVINCE -> {
+                    selectedProvince = provinceList!!.get(position)
+                    queryCities()
+                }
+                LEVEL_CITY -> {
+                    selectedCity = cityList!!.get(position)
+                    queryCounties()
+                }
+                LEVEL_COUNTRY -> {
+                    startActivity<WeatherActivity>("city_id" to countryList!!.get(position).weatherId)
+                    activity.finish()
+                }
             }
         }
         backButtton?.setOnClickListener {
@@ -160,11 +166,11 @@ class ChooseAreaFragment : Fragment() {
 
     private fun queryFromServer(address: String, type: String) {
         showProcessDialog()
-        sendOkHttpRequest(address, object :Callback{
+        sendOkHttpRequest(address, object : Callback {
             override fun onResponse(call: Call?, response: Response?) {
                 val responseText = response!!.body().string()
-                log(responseText)
-                log(type)
+               // log(responseText)
+               // log(type)
                 var result = false
                 when(type) {
                     "province"-> result = handleProvinceReponse(responseText)

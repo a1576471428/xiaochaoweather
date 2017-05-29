@@ -4,11 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.a15764.xiaochaoweather.MainActivity">
+    tools:context="com.example.a15764.xiaochaoweather.activitys.MainActivity">
 
     <fragment
         android:id="@+id/choose_area_fragment"
-        android:name="com.example.a15764.xiaochaoweather.ChooseAreaFragment"
+        android:name="com.example.a15764.xiaochaoweather.activitys.ChooseAreaFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

@@ -5,6 +5,8 @@ import android.util.Log
 import com.example.a15764.xiaochaoweather.db.City
 import com.example.a15764.xiaochaoweather.db.County
 import com.example.a15764.xiaochaoweather.db.Province
+import com.example.a15764.xiaochaoweather.gson.WeatherData
+import com.google.gson.Gson
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.jetbrains.anko.AnkoLogger
@@ -28,7 +30,7 @@ fun handleProvinceReponse(response: String):Boolean{
     if (!android.text.TextUtils.isEmpty(response)){
         try {
             val allProvinces = org.json.JSONArray(response)
-            Log.d("utils","pro:${allProvinces.length()}")
+            //Log.d("utils","pro:${allProvinces.length()}")
             for (i in 0..allProvinces.length()-1){
                 val provenceObject = allProvinces.getJSONObject(i)
                 val province = com.example.a15764.xiaochaoweather.db.Province()
@@ -52,7 +54,7 @@ fun handleCityReponse(response: String, provinceId: Int):Boolean{
     if (!android.text.TextUtils.isEmpty(response)){
         try {
             val allCitys = org.json.JSONArray(response)
-            Log.d("utils","city:${allCitys.length()}")
+            //Log.d("utils","city:${allCitys.length()}")
             for (i in 0..allCitys.length()-1){
                 val cityObject = allCitys.getJSONObject(i)
                 val city = com.example.a15764.xiaochaoweather.db.City()
@@ -77,7 +79,7 @@ fun handleCountyReponse(response: String, cityId: Int):Boolean{
     if (!android.text.TextUtils.isEmpty(response)){
         try {
             val allCounties = org.json.JSONArray(response)
-            Log.d("utils","country:${allCounties.length()}")
+            //Log.d("utils","country:${allCounties.length()}")
             for (i in 0..allCounties.length()-1){
                 val countryObject = allCounties.getJSONObject(i)
                 val country = com.example.a15764.xiaochaoweather.db.County()
@@ -93,4 +95,18 @@ fun handleCountyReponse(response: String, cityId: Int):Boolean{
         }
     }
     return false
+}
+
+/**
+ * 将返回的weather解析成实体类
+ */
+fun handleWeatherResponse(response: String?):WeatherData?{
+    try {
+        //Log.d("utils",response)
+        return Gson().fromJson(response, WeatherData::class.java)
+    }
+    catch(e:Exception){
+        e.printStackTrace()
+    }
+    return null
 }
