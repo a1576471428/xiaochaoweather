@@ -13,6 +13,7 @@ import com.bumptech.glide.Glide
 
 import com.example.a15764.xiaochaoweather.R
 import com.example.a15764.xiaochaoweather.gson.WeatherData
+import com.example.a15764.xiaochaoweather.service.AutoUpdateService
 import com.example.a15764.xiaochaoweather.util.handleWeatherResponse
 import com.example.a15764.xiaochaoweather.util.sendOkHttpRequest
 import kotlinx.android.synthetic.main.activity_weather.*
@@ -25,6 +26,7 @@ import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Response
 import org.jetbrains.anko.find
+import org.jetbrains.anko.startService
 import org.jetbrains.anko.toast
 import java.io.IOException
 
@@ -159,6 +161,7 @@ class WeatherActivity : AppCompatActivity() {
         car_wash_text.text = "洗车指数：${weather?.heweather5?.get(0)?.suggestion?.cw?.txt}"
         sport_text.text = "运动建议：${weather?.heweather5?.get(0)?.suggestion?.sport?.txt}"
         weather_layout.visibility = View.VISIBLE
+        startService<AutoUpdateService>()
     }
 
     /**
