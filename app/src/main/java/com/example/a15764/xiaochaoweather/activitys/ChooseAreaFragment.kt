@@ -19,6 +19,7 @@ import com.example.a15764.xiaochaoweather.util.handleCityReponse
 import com.example.a15764.xiaochaoweather.util.handleCountyReponse
 import com.example.a15764.xiaochaoweather.util.handleProvinceReponse
 import com.example.a15764.xiaochaoweather.util.sendOkHttpRequest
+import kotlinx.android.synthetic.main.activity_weather.*
 import kotlinx.android.synthetic.main.fragment_choose_area.*
 import okhttp3.Call
 import okhttp3.Callback
@@ -81,8 +82,23 @@ class ChooseAreaFragment : Fragment() {
                     queryCounties()
                 }
                 LEVEL_COUNTRY -> {
-                    startActivity<WeatherActivity>("city_id" to countryList!!.get(position).weatherId)
-                    activity.finish()
+                    val cityId = countryList!!.get(position).weatherId
+                    when (activity){
+                        is MainActivity ->{
+//                            log("startWeatherActivity")
+                            startActivity<WeatherActivity>("city_id" to cityId)
+                            activity.finish()
+                        }
+                        is WeatherActivity ->{
+
+//                            log("weatherActivity")
+                            val weatherActivity = activity as WeatherActivity
+                            weatherActivity.drawer_layout.closeDrawers()
+                            weatherActivity.swipe_refresh.isRefreshing = true
+                            weatherActivity.requestWeather(cityId)
+                        }
+                    }
+
                 }
             }
         }
@@ -133,7 +149,7 @@ class ChooseAreaFragment : Fragment() {
         }
         else{
             val provinceCode = selectedProvince!!.provinceCode
-            log(provinceCode.toString())
+//            log(provinceCode.toString())
             val address = "http://guolin.tech/api/china/$provinceCode"
             queryFromServer(address, "city")
         }
@@ -157,7 +173,7 @@ class ChooseAreaFragment : Fragment() {
             val provenceCode = selectedProvince?.provinceCode
             val cityCode = selectedCity?.cityCode
             val address = "http://guolin.tech/api/china/$provenceCode/$cityCode"
-            log("$provenceCode and $cityCode")
+//            log("$provenceCode and $cityCode")
             queryFromServer(address, "country")
         }
 

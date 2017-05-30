@@ -5,6 +5,7 @@ import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.preference.PreferenceManager
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
@@ -30,6 +31,7 @@ import java.io.IOException
 class WeatherActivity : AppCompatActivity() {
     val key = "6379fa59b03042e1b75d4c3e27da69c0"
     val backgrounPicApiUrl = "http://guolin.tech/api/bing_pic"
+    var mWeatherId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,21 +44,34 @@ class WeatherActivity : AppCompatActivity() {
         }
 
         setContentView(R.layout.activity_weather)
+        swipe_refresh.setColorSchemeColors(R.color.colorPrimary)
 
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
         val weatherString = prefs.getString("weather", null)
         if (weatherString != null){
+            //有缓存
             val weather = handleWeatherResponse(weatherString)
+            mWeatherId = weather?.heweather5?.get(0)?.basic?.id
             showWeatherInfo(weather)
         }
         else{
+            //没缓存
             val cityId = intent.getStringExtra("city_id")
             weather_layout.visibility = View.INVISIBLE
             requestWeather(cityId)
         }
-        val backgrounPic = prefs.getString("background_pic", null)
-        if (backgrounPic != null){
-            Glide.with(this@WeatherActivity).load(backgrounPic).into(background_pic)
+
+        swipe_refresh.setOnRefreshListener {
+            requestWeather(mWeatherId)
+        }
+
+        nav_button.setOnClickListener {
+            drawer_layout.openDrawer(Gravity.START)
+        }
+
+        val backgroundPic = prefs.getString("background_pic", null)
+        if (backgroundPic != null){
+            Glide.with(this@WeatherActivity).load(backgroundPic).into(background_pic)
         }
         else{
             loadBackgroundPic()
@@ -66,7 +81,7 @@ class WeatherActivity : AppCompatActivity() {
     /**
      * 根据城市id请求天气信息
      */
-    fun requestWeather(cityId:String){
+    fun requestWeather(cityId:String?){
 
      //   "https://free-api.heweather.com/v5/weather?city=beijing&key=6379fa59b03042e1b75d4c3e27da69c0"
         val weatherUrl = "https://free-api.heweather.com/v5/weather?city=$cityId&key=$key"
@@ -85,6 +100,8 @@ class WeatherActivity : AppCompatActivity() {
                     else{
                         toast("获取天气信息失败")
                     }
+                    //刷新事件结束
+                    swipe_refresh.isRefreshing = false
                 }
 
             }
@@ -93,6 +110,8 @@ class WeatherActivity : AppCompatActivity() {
                 e?.printStackTrace()
                 runOnUiThread {
                     toast("获取天气信息失败")
+                    //刷新事件结束
+                    swipe_refresh.isRefreshing = false
                 }
             }
         })
@@ -142,6 +161,9 @@ class WeatherActivity : AppCompatActivity() {
         weather_layout.visibility = View.VISIBLE
     }
 
+    /**
+     * 加载背景图
+     */
     private fun loadBackgroundPic(){
         sendOkHttpRequest(backgrounPicApiUrl, object : Callback {
             override fun onFailure(call: Call?, e: IOException?) {
